@@ -12,6 +12,7 @@
 /SourceCode/MiniSql/*.iml
 /SourceCode/*.iws
 /SourceCode/.idea/
+/SourceCode/MiniSql/.idea/
 
 # Maven
 /SourceCode/MiniSql/target/
