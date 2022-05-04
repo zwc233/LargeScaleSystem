@@ -1,6 +1,6 @@
 #### Test Schema
 
-测试数据库可以如下
+每个regionServer维护一个 名为 lss 的mysql数据库，数据库中有多个表(多个region)
 
 学生 table
 

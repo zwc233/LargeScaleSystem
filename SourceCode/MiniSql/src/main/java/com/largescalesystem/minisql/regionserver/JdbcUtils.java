@@ -17,12 +17,40 @@ public class JdbcUtils {
     }
 
     /**
-     * 获取mysql连接
+     * 获取mysql连接，写死url，name，pwd用于测试
      */
     static public Connection getConnection(){
         try {
             Class.forName(driver);
             return DriverManager.getConnection(url,user,pwd);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 支持自定义用户名
+     */
+    static public Connection getConnection(String inputUser, String inputPwd){
+        try {
+            Class.forName(driver);
+            return DriverManager.getConnection(url,inputUser,inputPwd);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 支持远程连接
+     */
+    static public Connection getConnection(String inputUser, String inputPwd, String inputIP){
+        try {
+            Class.forName(driver);
+            String inputURl = "jdbc:mysql://" + inputIP + "/?characterEncoding=utf-8&"
+                    + "useSSL=false&serverTimezone=UTC&rewriteBatchedStatements=true";
+            return DriverManager.getConnection(inputURl,inputUser,inputPwd);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
