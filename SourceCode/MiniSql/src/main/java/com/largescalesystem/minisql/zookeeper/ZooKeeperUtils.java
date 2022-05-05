@@ -60,7 +60,7 @@ public class ZooKeeperUtils {
 		return paths;
 	}
 
-    // TODO 一个更加完善的遍历(比如层序便利所有节点获取table信息的函数等等)
+    // TODO 一个更加完善的遍历(比如层序遍历所有节点获取table信息的函数等等)
 
     /**
 	 * 递归创建一个节点，没有默认值
