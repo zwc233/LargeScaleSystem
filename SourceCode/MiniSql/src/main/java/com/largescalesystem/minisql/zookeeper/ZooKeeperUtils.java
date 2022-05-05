@@ -1,23 +1,21 @@
 package com.largescalesystem.minisql.zookeeper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.apache.curator.RetryPolicy;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.cache.*;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 
 public class ZooKeeperUtils {
     /**
      * 创建客户端，默认连接本地2181端口
      * @return CuratorFramework
-	 * @throws Exception
-     */
-    public static CuratorFramework createAndStartClient() throws Exception{
+	 */
+    public static CuratorFramework createAndStartClient() {
         ExponentialBackoffRetry exponentialBackoffRetry = new ExponentialBackoffRetry(1000,3,3);
         //创建客户端
         CuratorFramework client = CuratorFrameworkFactory.newClient("127.0.0.1:2181", 3000, 3000, exponentialBackoffRetry);
@@ -31,9 +29,8 @@ public class ZooKeeperUtils {
      * 创建客户端，默认远程2181端口
      * @param ip 远程zookeeper服务器ip
      * @return CuratorFramework
-	 * @throws Exception
-     */
-    public static CuratorFramework createAndStartClient(String ip) throws Exception{
+	 */
+    public static CuratorFramework createAndStartClient(String ip) {
         ExponentialBackoffRetry exponentialBackoffRetry = new ExponentialBackoffRetry(1000,3,3);
         //创建客户端
         CuratorFramework client = CuratorFrameworkFactory.newClient(ip + ":2181", 3000, 3000, exponentialBackoffRetry);
@@ -49,15 +46,13 @@ public class ZooKeeperUtils {
      * @param client 传入客户端
 	 * @param parentPath 节点路径
 	 * @return List<String>
-	 * @throws Exception
 	 */
 	public static List<String> nodesList(CuratorFramework client, String parentPath) throws Exception {
 		Stat stat = client.checkExists().forPath(parentPath);
 		if (stat == null) {
 			return null;
 		}
-		List<String> paths = client.getChildren().forPath(parentPath);
-		return paths;
+		return client.getChildren().forPath(parentPath);
 	}
 
     // TODO 一个更加完善的遍历(比如层序遍历所有节点获取table信息的函数等等)
@@ -67,7 +62,6 @@ public class ZooKeeperUtils {
      * @param client 传入客户端
 	 * @param path 节点路径
 	 * @return void
-	 * @throws Exception
 	 */
     public static Boolean createNode(CuratorFramework client, String path) throws Exception{
         Stat stat = client.checkExists().forPath(path);
@@ -85,7 +79,6 @@ public class ZooKeeperUtils {
      * @param client 传入客户端
 	 * @param path 节点路径
 	 * @return void
-	 * @throws Exception
 	 */
     public static Boolean createNode(CuratorFramework client, String path, String value) throws Exception{
         Stat stat = client.checkExists().forPath(path);
@@ -103,15 +96,14 @@ public class ZooKeeperUtils {
      * @param client 传入客户端
 	 * @param path 节点路径
 	 * @return String
-	 * @throws Exception
 	 */
     public static String getDataNode(CuratorFramework client, String path) throws Exception {
 		Stat stat = client.checkExists().forPath(path);
 		if (stat == null) {
 			return null;
 		}
-		byte[] datas = client.getData().forPath(path);
-		return new String(datas, "UTF-8");
+		byte[] data = client.getData().forPath(path);
+		return new String(data, StandardCharsets.UTF_8);
 	}
 
     /**
@@ -121,7 +113,6 @@ public class ZooKeeperUtils {
 	 * @param path 节点路径
 	 * @param message 传入信息
 	 * @return boolean
-	 * @throws Exception
 	 */
 	public static Boolean setDataNode(CuratorFramework client, String path, String message) throws Exception {
 		Stat stat = client.checkExists().forPath(path);
@@ -137,7 +128,6 @@ public class ZooKeeperUtils {
 	 * @param client 传入客户端
 	 * @param path 节点路径
      * @return boolean
-	 * @throws Exception
 	 */
 	public static Boolean delNodeAndChild(CuratorFramework client, String path) throws Exception {
 		Stat stat = client.checkExists().forPath(path);
@@ -152,8 +142,7 @@ public class ZooKeeperUtils {
 	 * 删除当前节点
 	 * @param client 传入客户端
 	 * @param path 节点路径
-	 * @throws Exception
-     * @return boolean
+	 * @return boolean
 	 */
 	public static Boolean delCurrentNode(CuratorFramework client, String path) throws Exception {
 		Stat stat = client.checkExists().forPath(path);
@@ -169,14 +158,10 @@ public class ZooKeeperUtils {
 	 * @param client 传入客户端
 	 * @param path 节点路径
 	 * @return boolean
-	 * @throws Exception
 	 */
 	public static Boolean checkNode(CuratorFramework client, String path) throws Exception {
 		Stat stat = client.checkExists().forPath(path);
-		if (stat == null) {
-			return false;
-		}
-		return true;
+		return stat != null;
 	}
 
 }
