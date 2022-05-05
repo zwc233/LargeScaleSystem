@@ -1,4 +1,5 @@
 package com.largescalesystem.minisql.regionserver;
+import java.io.IOException;
 import java.sql.*;
 
 public class JdbcUtils {
@@ -31,6 +32,8 @@ public class JdbcUtils {
 
     /**
      * 支持自定义用户名
+     * @param inputUser mysql用户名
+     * @param inputPwd mysql密码
      */
     static public Connection getConnection(String inputUser, String inputPwd){
         try {
@@ -44,8 +47,11 @@ public class JdbcUtils {
 
     /**
      * 支持远程连接
+     * @param inputIP 远程IP
+     * @param inputUser mysql用户名
+     * @param inputPwd mysql密码
      */
-    static public Connection getConnection(String inputUser, String inputPwd, String inputIP){
+    static public Connection getConnection(String inputIP ,String inputUser, String inputPwd){
         try {
             Class.forName(driver);
             String inputURl = "jdbc:mysql://" + inputIP + "/?characterEncoding=utf-8&"
@@ -55,6 +61,69 @@ public class JdbcUtils {
             e.printStackTrace();
             return null;
         }
+    }
+    
+
+    /**
+     * 数据表dump
+     * @param inputTable 需要dump的表，默认存在lss数据库下
+     */
+    public static boolean dumpRemoteSql(String inputTable) {
+        String  str="mysqldump -uroot -p123 lss " + inputTable + 
+        " > ./sql/lss." + inputTable + ".sql";
+        
+        try {
+            Runtime rt =Runtime.getRuntime();
+            rt.exec("cmd /c " + str);
+        } catch (IOException e){
+            System.out.println(e);
+            System.out.println(e.getStackTrace());
+        }
+        return true;
+    }
+
+    /**
+     * 数据表dump
+     * @param inputTable 需要dump的表，默认存在lss数据库下
+     * @param ip 远程IP
+     */
+    public static boolean dumpRemoteSql(String inputTable, String ip) {
+        String  str="mysqldump -uroot -h" + ip + 
+        " -p123 lss " + inputTable + 
+        " > ./sql/lss." + inputTable + ".sql";
+
+        try {
+            Runtime rt =Runtime.getRuntime();
+            rt.exec("cmd /c " + str);
+        } catch (IOException e){
+            System.out.println(e);
+            System.out.println(e.getStackTrace());
+        }
+        return true;
+    }
+
+    /**
+     * 数据表dump
+     * @param inputTable 需要dump的表，默认存在lss数据库下
+     * @param ip 远程IP
+     * @param user mysql用户名
+     * @param pwd mysql密码
+     */
+    public static boolean dumpRemoteSql(String inputTable, String ip, String user, String pwd) {
+        // TODO 在dump之前检查 ip连接是否通畅
+        String  str="mysqldump -u" + user + 
+        " -h" + ip + 
+        " -p" + pwd +
+        " lss " + inputTable + 
+        " > ./sql/lss." + inputTable + ".sql";
+        try {
+            Runtime rt =Runtime.getRuntime();
+            rt.exec("cmd /c " + str);
+        } catch (IOException e){
+            System.out.println(e);
+            System.out.println(e.getStackTrace());
+        }
+        return true;
     }
 
     /**

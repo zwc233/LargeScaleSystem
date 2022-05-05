@@ -36,3 +36,12 @@ create table place(id int, name char(20), address char(20));
 create table course(id int, name char(20), score float);
 ```
 
+##### 数据
+
+```sql
+insert into course(0,'a',1.5);
+insert into course(1,'b',2.5);
+insert into course(2,'c',3.5);
+insert into course(3,'d',4.0);
+```
+

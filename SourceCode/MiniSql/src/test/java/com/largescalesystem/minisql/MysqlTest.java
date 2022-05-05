@@ -37,4 +37,9 @@ public class MysqlTest {
             JdbcUtils.releaseResc(resultSet, statement, connection);
         }
     }
+
+    @Test
+    public void mySqlDump(){
+        JdbcUtils.dumpRemoteSql("course", "127.0.0.1", "root", "123");
+    }
 }
