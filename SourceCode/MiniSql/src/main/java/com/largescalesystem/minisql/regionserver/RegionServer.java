@@ -31,6 +31,7 @@ public class RegionServer {
     public static ServerSocket serverSocket = null;
     public static ThreadPoolExecutor threadPoolExecutor = null;
 
+    public static Boolean quitSignal = false;
     static {
         ip = getIPAddress();
         mysqlUser = "root";
@@ -62,6 +63,10 @@ public class RegionServer {
                 // 重新创建数据库
                 String createDB = "create database if not exists lss";
                 statement.execute(createDB);
+
+                // 使用新创建的数据库
+                String useDB = "use lss";
+                statement.execute(useDB);
             } catch(Exception e) {
                 System.out.println(e);
             }
@@ -84,10 +89,13 @@ public class RegionServer {
             String nodeName = "/lss/region_servers/server_" + String.valueOf(max+1);
             ZooKeeperUtils.createNode(client, nodeName);
 
+            // TODO 仍然存在bug
+            ZooKeeperUtils.createNode(client, nodeName + "/ip", ip);
+            ZooKeeperUtils.createNode(client, nodeName + "/port", port);
+
         } catch(Exception e) {
             System.out.println(e);
         }
-        System.out.println("ok");
     }
 
     public static void createSocketAndThreadPool(){
@@ -136,7 +144,7 @@ public class RegionServer {
 
     public static void main( String[] args ) {
         initRegionServer();
-
+        
         threadPoolExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -146,23 +154,23 @@ public class RegionServer {
                     if ( !cmd.equals("quit") ) {
                         System.out.println(cmd);
                     } else {
+                        quitSignal = true;
                         break;
                     }
                 }
                 sc.close();
             }
         });
-        int i = 0;
         while(true) {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                Socket socket = serverSocket.accept();
+                threadPoolExecutor.submit(new ServerThread(socket, client, statement));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (i == 20){
+            if (quitSignal){
                 break;
             }
-            i++;
         }
         ZooKeeperUtils.closeClient(client);
     }
