@@ -17,6 +17,7 @@ import com.largescalesystem.minisql.zookeeper.ZooKeeperUtils;
 
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.log4j.PropertyConfigurator;
 
 public class RegionServer {
     public static String ip = null;
@@ -89,9 +90,9 @@ public class RegionServer {
             String nodeName = "/lss/region_servers/server_" + String.valueOf(max+1);
             ZooKeeperUtils.createNode(client, nodeName);
 
-            // TODO 仍然存在bug
-            ZooKeeperUtils.createNode(client, nodeName + "/ip", ip);
-            ZooKeeperUtils.createNode(client, nodeName + "/port", port);
+            // 临时节点无法创建子节点
+            // ZooKeeperUtils.createNode(client, nodeName + "/ip", ip);
+            // ZooKeeperUtils.createNode(client, nodeName + "/port", port);
 
         } catch(Exception e) {
             System.out.println(e);
@@ -143,6 +144,7 @@ public class RegionServer {
     }
 
     public static void main( String[] args ) {
+        PropertyConfigurator.configure( "./log4j.properties");
         initRegionServer();
         
         threadPoolExecutor.submit(new Runnable() {
