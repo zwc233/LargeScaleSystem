@@ -41,3 +41,14 @@
 └─zookeeper
 ```
 
+#### 
+
+#### 注：
+
+现在	server_x	节点为临时节点，其中数据储存格式如下
+
+ip,port,mysql_port,mysql_user,mysql_pwd,table_num,table_name_1,table_name_2,table_name_3...
+
+例：
+
+127.0.0.1,1001,3306,123,root,3,school,student,teacher_slave
