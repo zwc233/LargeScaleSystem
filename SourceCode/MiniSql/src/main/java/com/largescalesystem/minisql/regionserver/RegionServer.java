@@ -17,13 +17,35 @@ import com.largescalesystem.minisql.zookeeper.ZooKeeperUtils;
 
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.log4j.PropertyConfigurator;
+
+class TableInfo {
+    public String tableName;
+    public boolean slave;
+    public String slaveIp;
+    public String slavePort;
+    public String slaveUsr;
+    public String slavePwd;
+    public String slaveSqlPort;
+
+    TableInfo(String tableName){
+        this.slave = false;
+        this.tableName = tableName;
+        this.slaveUsr = "root";
+        this.slavePwd = "123";
+        this.slaveSqlPort = "3306";
+    }
+    public void setSlave(String ip, String port){
+        this.slave = true;
+        this.slaveIp = ip;
+        this.slavePort = port;
+    }
+}
 
 public class RegionServer {
-    public static String ip = null;
-    public static String port = null;
-    public static String mysqlUser = null;
-    public static String mysqlPwd = null;
+    public static String ip;
+    public static String port;
+    public static String mysqlUser;
+    public static String mysqlPwd;
 
     public static CuratorFramework client = null;
     public static Connection connection = null;
@@ -33,11 +55,17 @@ public class RegionServer {
     public static ThreadPoolExecutor threadPoolExecutor = null;
 
     public static Boolean quitSignal = false;
+    public static ArrayList<TableInfo> tables;
+
+    public static String serverPath;
+    public static String serverValue;
+
     static {
         ip = getIPAddress();
         mysqlUser = "root";
         mysqlPwd = "123";
         port = "1001";
+        tables = new ArrayList<>();
     }
 
     RegionServer() {
@@ -47,6 +75,7 @@ public class RegionServer {
         client = ZooKeeperUtils.createAndStartClient();
         connection = JdbcUtils.getConnection();
         try {
+            assert connection != null;
             statement = connection.createStatement();
         } catch (SQLException e) {
             System.out.println(e);
@@ -87,12 +116,10 @@ public class RegionServer {
                 }
             }   
 
-            String nodeName = "/lss/region_servers/server_" + String.valueOf(max+1);
-            ZooKeeperUtils.createNode(client, nodeName);
+            serverPath = "/lss/region_servers/server_" + (max + 1);
+            serverValue = ip + "," + port + "," + mysqlUser + "," + mysqlPwd + "," + "3306," + ",0";
 
-            // 临时节点无法创建子节点
-            // ZooKeeperUtils.createNode(client, nodeName + "/ip", ip);
-            // ZooKeeperUtils.createNode(client, nodeName + "/port", port);
+            ZooKeeperUtils.createNode(client, serverPath, serverValue);
 
         } catch(Exception e) {
             System.out.println(e);
@@ -144,7 +171,6 @@ public class RegionServer {
     }
 
     public static void main( String[] args ) {
-        PropertyConfigurator.configure( "./log4j.properties");
         initRegionServer();
         
         threadPoolExecutor.submit(new Runnable() {
@@ -166,7 +192,7 @@ public class RegionServer {
         while(true) {
             try {
                 Socket socket = serverSocket.accept();
-                threadPoolExecutor.submit(new ServerThread(socket, client, statement));
+                threadPoolExecutor.submit(new ServerThread(socket, client, statement, tables));
             } catch (Exception e) {
                 e.printStackTrace();
             }
