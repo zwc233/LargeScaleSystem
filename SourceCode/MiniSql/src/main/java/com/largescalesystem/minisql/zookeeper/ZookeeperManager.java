@@ -22,12 +22,14 @@ public class ZookeeperManager implements Runnable{
 
     public void startMonitor(){
         try {
-           CuratorFramework client = ZooKeeperUtils.createAndStartClient(ZNODE);
-           if(!ZooKeeperUtils.checkNode(client,ZNODE)){
+            
+            CuratorFramework client = ZooKeeperUtils.createAndStartClient(ZNODE);
+            if(!ZooKeeperUtils.checkNode(client,ZNODE)){
                ZooKeeperUtils.createNode(client,ZNODE);
-           }
+            }
+            ZooKeeperUtils.nodeCuratorCache(client,ZNODE);
         } catch (Exception e) {
-            log.warn(e.getMessage(),e);
+            e.printStackTrace();
         }
     }
 }
