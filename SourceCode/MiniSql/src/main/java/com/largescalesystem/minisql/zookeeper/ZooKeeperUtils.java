@@ -163,5 +163,39 @@ public class ZooKeeperUtils {
 		Stat stat = client.checkExists().forPath(path);
 		return stat != null;
 	}
+	
+	/**
+         * 若不存在节点则创建
+         * @param client
+         * @param path
+         * @throws Exception
+         */
+
+        public void createIfNeed(CuratorFramework client, String path) throws Exception {
+            if(!checkNode(client, path)){
+                Boolean bool = createNode(client, path);
+            }
+
+        }
+ 
+        /**
+         * 监听某个节点
+         * @param client
+         * @param path
+         */
+    	public void nodeCuratorCache(CuratorFramework client, String path) {
+       	    CuratorCache curatorCache = CuratorCache.build(client,path);
+            CuratorCache cache = CuratorCache.build(client, path);
+            CuratorCacheListener listener = CuratorCacheListener.builder()
+            	.forCreates(node -> System.out.println(String.format("Node created: [%s]", node)))
+               	.forChanges((oldNode, node) -> System.out.println(String.format("Node changed. Old: [%s] New: [%s]", oldNode, node)))
+                .forDeletes(oldNode -> System.out.println(String.format("Node deleted. Old value: [%s]", oldNode)))
+                .forInitialized(() -> System.out.println("Cache initialized"))
+                .build();
+
+       	    cache.listenable().addListener(listener);
+
+            cache.start();
+    }
 
 }
