@@ -12,6 +12,7 @@ public class Client {
         bufferedWriter.write("CONNECT CLIENT");
         bufferedWriter.newLine();
         bufferedWriter.flush();
+
         //通过标准输入流获取字符流
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
         String line;
@@ -19,6 +20,9 @@ public class Client {
             bufferedWriter.write(line);
             bufferedWriter.newLine();
             bufferedWriter.flush();
+
+            String msg = reader.readLine();
+            System.out.println(msg);
         }
     }
 }

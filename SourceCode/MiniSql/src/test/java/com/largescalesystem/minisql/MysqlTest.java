@@ -35,7 +35,7 @@ public class MysqlTest {
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }finally {
+        } finally {
             JdbcUtils.releaseResc(resultSet, statement, connection);
         }
     }

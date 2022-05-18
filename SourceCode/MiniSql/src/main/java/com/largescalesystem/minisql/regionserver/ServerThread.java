@@ -1,9 +1,7 @@
 package com.largescalesystem.minisql.regionserver;
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.*;
 import java.sql.*;
 import java.util.ArrayList;
@@ -18,6 +16,9 @@ public class ServerThread implements Runnable {
     public ArrayList<TableInfo> tables;
     public Statement statement;
 
+    public BufferedWriter writer = null;
+
+
     ServerThread(Socket socket, CuratorFramework client, Statement statement, ArrayList<TableInfo> tables) {
         this.socket = socket;
         this.client = client;
@@ -28,7 +29,10 @@ public class ServerThread implements Runnable {
     public void run() {
         try {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             String line;
+
+
             while ((line = reader.readLine()) != null){
                 if (line.substring(0, 7).equals("CONNECT")){
                     serverIdentity = line.substring(8);
@@ -72,14 +76,35 @@ public class ServerThread implements Runnable {
                 break;
             } else if (line.length() >= 6 && line.startsWith("create")){
                 System.out.println("Client请求创建表");
+                synchronized (this){
+                    boolean res = ServerClient.createTable(line);
+                    reactCmd(res);
+                }
             } else if (line.length() >= 6 && line.startsWith("insert")){
                 System.out.println("Client请求插入语句");
+                synchronized (this){
+                    boolean res = ServerClient.executeCmd(line);
+                    reactCmd(res);
+                }
             } else if (line.length() >= 6 && line.startsWith("delete")){
                 System.out.println("Client请求删除语句");
+                synchronized (this){
+                    boolean res = ServerClient.executeCmd(line);
+                    reactCmd(res);
+                }
             } else if (line.length() >= 6 && line.startsWith("select")){
                 System.out.println("Client请求查询");
+                synchronized (this){
+                    String res = ServerClient.selectTable(line);
+                    writer.write(res + "\n");
+                    writer.flush();
+                }
             } else if (line.length() >= 4 && line.startsWith("drop")){
                 System.out.println("Client请求删除表");
+                synchronized (this){
+                    boolean res = ServerClient.dropTable(line);
+                    reactCmd(res);
+                }
             } else {
                 System.out.println("非有效指令 " + line);
             }
@@ -104,9 +129,6 @@ public class ServerThread implements Runnable {
                 }
             } else if (line.startsWith("create")){
                 System.out.println("Master请求创建表");
-                synchronized (this){
-                    ServerMaster.createTable(line);
-                }
             } else {
                 System.out.println("非有效指令 " + line);
             }
@@ -133,5 +155,14 @@ public class ServerThread implements Runnable {
                 System.out.println("非有效指令 " + line);
             }
         }
+    }
+
+    public void reactCmd(boolean result) throws IOException {
+        if (result){
+            writer.write("true\n");
+        } else {
+            writer.write("false\n");
+        }
+        writer.flush();
     }
 }

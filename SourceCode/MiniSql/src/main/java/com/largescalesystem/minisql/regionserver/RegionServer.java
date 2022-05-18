@@ -117,7 +117,7 @@ public class RegionServer {
             }   
 
             serverPath = "/lss/region_servers/server_" + (max + 1);
-            serverValue = ip + "," + port + "," + mysqlUser + "," + mysqlPwd + "," + "3306," + ",0";
+            serverValue = ip + "," + port + "," + mysqlUser + "," + mysqlPwd + "," + "3306" + ",0";
 
             ZooKeeperUtils.createNode(client, serverPath, serverValue);
 

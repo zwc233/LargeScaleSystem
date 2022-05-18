@@ -10,49 +10,6 @@ import java.util.Objects;
 
 
 public class ServerMaster {
-    public static void createTable(String cmd){
-        int index = cmd.indexOf("@");
-        String sqlCmd = cmd.substring(0,index-1);
-        String slaveInfoString = cmd.substring(index+2);
-        String [] slaveInfo = slaveInfoString.split(",");
-
-        String tableName = sqlCmd.split(" ")[2];
-        tableName = tableName.substring(0,tableName.indexOf("("));
-        System.out.println(sqlCmd);
-        System.out.println(tableName);
-        for (String i: slaveInfo) {
-            System.out.println(i);
-        }
-
-        try {
-            // 创建本地表
-            RegionServer.statement.execute(sqlCmd);
-
-            // 创建zookeeperNode
-            String serverValue = addTable(Objects.requireNonNull(ZooKeeperUtils.getDataNode(RegionServer.client, RegionServer.serverPath)), tableName);
-            ZooKeeperUtils.setDataNode(RegionServer.client, RegionServer.serverPath, serverValue);
-
-
-            // 创建副本
-            if (!slaveInfo[1].equals("127.0.0.1")) {
-                // 创建远程表
-                Connection connection = JdbcUtils.getConnection(slaveInfo[1],slaveInfo[3],slaveInfo[4]);
-                assert connection != null;
-                Statement statement =  connection.createStatement();
-                statement.execute(sqlCmd);
-                JdbcUtils.releaseResc(null,statement,connection);
-                // 创建zookeeperNode
-                String serverPath = "/lss/region_servers/" + slaveInfo[0];
-                String remoteValue = addTable(Objects.requireNonNull(ZooKeeperUtils.getDataNode(RegionServer.client, serverPath)), tableName + "_slave");
-                ZooKeeperUtils.setDataNode(RegionServer.client, serverPath, remoteValue);
-            }
-
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-
-    }
-
     public static void dumpTable(String cmd){
         int index = cmd.indexOf("@");
         String tableName = cmd.substring(cmd.indexOf(" " + 1),index - 1);
@@ -155,11 +112,6 @@ public class ServerMaster {
             } catch (Exception e) {
                 System.out.println(e);
             }
-
-
-
-
-            
         } else {
             System.out.println("创建副本失败");
         }
