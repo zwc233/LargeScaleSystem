@@ -6,17 +6,19 @@ import java.io.*;
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Master {
     public static String ip = null;
     public static int port;
     public static CuratorFramework client = null;
+    public static ArrayList<String> nodeInfo = null;
 
     static {
         port = 2000;
     }
 
-    public static void main(String[] args) throws IOException{
+    public void main(String[] args) throws Exception {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress(Inet4Address.getLocalHost(), port));
         InputStream in = System.in;
@@ -29,7 +31,7 @@ public class Master {
         }
     }
 
-    public static void masterHandle(Socket socket) throws IOException{
+    public static void masterHandle(Socket socket) throws Exception {
         InputStream in = System.in;
         BufferedReader input = new BufferedReader(new InputStreamReader(in));
         OutputStream outputStream = socket.getOutputStream();
