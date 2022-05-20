@@ -97,7 +97,7 @@ public class client {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        String ip = "127.0.0.1";
+        String ip = "192.168.246.10";
         int port = 2000;
         //        String str1 = getConnection(ip,port);
         Communication communication2Master = new Communication(ip,port);
@@ -183,20 +183,27 @@ public class client {
 //        System.out.println(region_ip);
 //        System.out.println(region_port);
 
-
-        if(raw.length == 1){
-            Communication communication2Region = new Communication(region_ip, region_port);
-            communication2Region.start();
-            communication2Region.join();
-            str2 = communication2Region.getResult();
-            System.out.println(str2);
-        }else{
-            Communication communication2Region_slave = new Communication(region_ip_slave, region_port_slave);
-            communication2Region_slave.start();
-            communication2Region_slave.join();
-            str3 = communication2Region_slave.getResult();
-            System.out.println(str3);
+        while(true){
+            if(raw.length == 1){
+                Communication communication2Region = new Communication(region_ip, region_port);
+                communication2Region.start();
+                communication2Region.join();
+                str2 = communication2Region.getResult();
+                System.out.println(str2);
+            }else{
+                Communication communication2Region = new Communication(region_ip, region_port);
+                communication2Region.start();
+                communication2Region.join();
+                str2 = communication2Region.getResult();
+                System.out.println(str2);
+                Communication communication2Region_slave = new Communication(region_ip_slave, region_port_slave);
+                communication2Region_slave.start();
+                communication2Region_slave.join();
+                str3 = communication2Region_slave.getResult();
+                System.out.println(str3);
+            }
         }
+
     }
 
 
