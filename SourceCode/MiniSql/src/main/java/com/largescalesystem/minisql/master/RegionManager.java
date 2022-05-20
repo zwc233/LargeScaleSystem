@@ -18,25 +18,11 @@ import java.util.Objects;
 
 public class RegionManager{
     public static CuratorFramework client = null;
-    public static String address = "192.168.42.136:2181";
+    public static String address = "192.168.246.136:2181";
     public static ArrayList<String> nodeList = null;
     public static String masterInfo = null;
     public static List<String> regions = null;
 
-//    public static void main(String[] args) throws Exception{
-//        try{
-//            RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-//            client = CuratorFrameworkFactory.builder().connectString(address).sessionTimeoutMs(3000)
-//                    .connectionTimeoutMs(3000).retryPolicy(retryPolicy).build();
-//            client.start();
-//            nodeList = new ArrayList<>();
-//            getRegionAndMaster();
-//            nodeCuratorCache(client, "/lss/region_servers");
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public static void getRegionAndMaster() {
         try{
@@ -57,7 +43,6 @@ public class RegionManager{
                 .connectionTimeoutMs(3000).retryPolicy(retryPolicy).build();
         client.start();
         nodeList = new ArrayList<>();
-//        nodeList.add("127.0.0.1,1001,3306,123,root,3,school,student,teacher_slave");
         getRegionAndMaster();
         nodeCuratorCache(client, "/lss/region_servers");
         return nodeList;
@@ -111,6 +96,7 @@ public class RegionManager{
                     }
                 }
             }
+            System.out.println(index1 + " " + index2);
             return nodeInfo.get(index1) + ";" + nodeInfo.get(index2);
         }
     }
@@ -139,7 +125,7 @@ public class RegionManager{
                                 ServerMaster.dumpTable(cmd);
                             }
                         }
-                        else{
+                        else {
                             int min = 100;
                             int indexTmp = 0;
                             for(String node : nodeList){

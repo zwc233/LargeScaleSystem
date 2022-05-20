@@ -17,7 +17,6 @@ public class Server {
             Socket client = server.accept();
             ClientHandler clientHandler = new ClientHandler(client);
             clientHandler.start();
-            RegionManager.listenNode();
         }
     }
 
@@ -33,36 +32,29 @@ public class Server {
             super.run();
             System.out.println("New client connected, address: " + socket.getInetAddress() + ", port: " + socket.getPort());
             try {
-                // 监听节点
-//                RegionManager.listenNode();
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String temp = input.readLine();
                 String sql = input.readLine();
                 System.out.println("CLIENT REQUEST: " + sql);
                 ArrayList<String> tableInfo = RegionManager.getNodeList();
-//                ArrayList<String> tableInfo = new ArrayList<>();
-//                tableInfo.add("127.0.0.1,1001,3306,123,root,3,school,student,teacher_slave");
-//                tableInfo.add("127.0.0.1,1001,3306,123,root,3,school,student,teacher_slave");
-//                System.out.println(tableInfo);
                 PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
                 String tableName = null;
-                if (Objects.equals(sql.split(" ")[0], "insert") || Objects.equals(sql.split(" ")[0], "delete")) {
+                if (Objects.equals(sql.split(" ")[0], "insert") || Objects.equals(sql.split(" ")[0], "delete") ||
+                        Objects.equals(sql.split(" ")[0], "drop")) {
                     tableName = sql.split(" ")[2];
                 }
                 else if(Objects.equals(sql.split(" ")[0], "select")){
                     tableName = sql.split(" ")[3];
                 }
                 else if(Objects.equals(sql.split(" ")[0], "create")){
-//                    tableName = sql.split(" ")[2];
                     tableName = sql.split("\\(")[0].split(" ")[2];
                 }
-
-//                System.out.println(tableName);
                 if(Objects.equals(sql.split(" ")[0], "create")){
                     System.out.println("TARGET REGION SERVER: " + RegionManager.loadBalance(tableInfo));
                     printWriter.println(RegionManager.loadBalance(tableInfo));
                 }
                 else {
+                    StringBuilder result = new StringBuilder();
                     for (String nodeInfo : tableInfo) {
                         String[] list = nodeInfo.split(",");
                         boolean flag = false;
@@ -74,9 +66,15 @@ public class Server {
                         }
                         if (flag) {
                             System.out.println("TARGET REGION SERVER: " + nodeInfo);
-                            printWriter.println(nodeInfo);
+                            if(result.toString().equals("")){
+                                result.append(nodeInfo).append(";");
+                            }
+                            else{
+                                result.append(nodeInfo);
+                            }
                         }
                     }
+                    printWriter.println(result);
                 }
                 printWriter.close();
             } catch (Exception e) {
