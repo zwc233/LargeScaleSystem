@@ -25,12 +25,12 @@ public class client {
         String info = null;
         str[0] = input.readLine();
         System.out.println(str[0]);
-        InetAddress serverIP = InetAddress.getByName(ip);
-        socket = new Socket(serverIP, port);
-//        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-//        bw.write("CONNECT CLIENT");
-//        bw.newLine();
-//        bw.flush();
+//        InetAddress serverIP = InetAddress.getByName(ip);
+        socket = new Socket(ip, port);
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        bw.write("CONNECT CLIENT");
+        bw.newLine();
+        bw.flush();
         int j = 0;
         while(str[j] != null) {
             BufferedReader br = null;
@@ -73,10 +73,40 @@ public class client {
         return info;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static class Communication extends Thread{
+        private String ip;
+        private int port;
+        private String result;
+        public Communication(String ip,int port){
+            this.ip = ip;
+            this.port = port;
+        }
+
+        public String getResult(){
+            return this.result;
+        }
+        @Override
+        public void run(){
+            try {
+                this.result = getConnection(ip, port);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
         String ip = "127.0.0.1";
         int port = 2000;
-        String str1 = getConnection(ip,port);
+        //        String str1 = getConnection(ip,port);
+        Communication communication2Master = new Communication(ip,port);
+        communication2Master.start();
+        communication2Master.join();
+        String str1 = communication2Master.getResult();
+        String str2 = null;
+        String str3 = null;
+
 //        String str1 = "127.0.0.1,1001,123,root,3306,3,school,student,teacher;127.0.0.1,1001,123,root,3306,3,school,student,teacher";
         String[] raw = str1.split(";");
         String region_ip = null;
@@ -150,8 +180,23 @@ public class client {
         System.out.println(region_server_info);
         System.out.println("information of region_server_slave is as follows");
         System.out.println(region_server_slave_info);
+//        System.out.println(region_ip);
+//        System.out.println(region_port);
 
-        //String str2 = getConnection(region_ip,region_port);
+
+        if(raw.length == 1){
+            Communication communication2Region = new Communication(region_ip, region_port);
+            communication2Region.start();
+            communication2Region.join();
+            str2 = communication2Region.getResult();
+            System.out.println(str2);
+        }else{
+            Communication communication2Region_slave = new Communication(region_ip_slave, region_port_slave);
+            communication2Region_slave.start();
+            communication2Region_slave.join();
+            str3 = communication2Region_slave.getResult();
+            System.out.println(str3);
+        }
     }
 
 
