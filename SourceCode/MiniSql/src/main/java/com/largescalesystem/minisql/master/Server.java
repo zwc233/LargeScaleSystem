@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import static com.largescalesystem.minisql.master.RegionManager.listenNode;
+
 public class Server {
     public static void main(String[] args) throws Exception {
         ServerSocket server = new ServerSocket(2000);
@@ -17,6 +19,7 @@ public class Server {
             Socket client = server.accept();
             ClientHandler clientHandler = new ClientHandler(client);
             clientHandler.start();
+            listenNode();
         }
     }
 
