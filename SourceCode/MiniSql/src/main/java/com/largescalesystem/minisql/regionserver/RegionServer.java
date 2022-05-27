@@ -72,8 +72,8 @@ public class RegionServer {
 
     }
     public static void initRegionServer() {
-        client = ZooKeeperUtils.createAndStartClient();
-        connection = JdbcUtils.getConnection();
+        client = ZooKeeperUtils.createAndStartClient("192.168.42.136");
+        connection = JdbcUtils.getConnection("root", "zbh11600");
         try {
             assert connection != null;
             statement = connection.createStatement();
