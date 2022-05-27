@@ -17,23 +17,25 @@ public class MysqlTest {
             String dbSql = "use school";
             statement.executeQuery(dbSql);
 
-            String sql = "select * from student";
+            String sql = "select id,teacher_name from student";
 
             resultSet = statement.executeQuery(sql);
-
+            ResultSetMetaData rsmd = resultSet.getMetaData() ; 
+            int columnCount = rsmd.getColumnCount();
+            String res = "";
             while(resultSet.next()){
-
-                String id = resultSet.getString("id");
-                String name = resultSet.getString("name");
-                String teacherName = resultSet.getString("teacher_name");
-
-                System.out.println("学号:"+id+"  姓名:"+name+"  教师姓名:"+teacherName);
+                if (columnCount >= 1)
+                    res +=  resultSet.getString(1);
+                for (int i = 2; i<= columnCount;i++){
+                    res +=  " " + resultSet.getString(i);
+                }
+                res += "\n";
             }
-
+            System.out.println(res);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }finally {
+        } finally {
             JdbcUtils.releaseResc(resultSet, statement, connection);
         }
     }

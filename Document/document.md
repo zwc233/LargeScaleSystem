@@ -9,7 +9,7 @@
   URL： [LargeScaleSystem/设计报告.pdf at main · zwc233/LargeScaleSystem (github.com)](https://github.com/zwc233/LargeScaleSystem/blob/main/Document/设计报告.pdf)
 - [ ] 模块设计报告
   - [ ] 裴睿韬
-  - [ ] 赵文琛
+  - [x] 赵文琛
   - [ ] 张柏涵
 
 #### 其他文件

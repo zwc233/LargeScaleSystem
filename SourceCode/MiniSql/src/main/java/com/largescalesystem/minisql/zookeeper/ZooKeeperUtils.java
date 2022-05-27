@@ -40,6 +40,12 @@ public class ZooKeeperUtils {
         return client;
     }
 
+	/**
+     * 关闭客户端
+	 */
+	public static void closeClient(CuratorFramework client) {
+       client.close();
+    }
     /**
 	 *
 	 * 获取子节点列表 打印

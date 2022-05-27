@@ -12,7 +12,7 @@ public class JdbcUtils {
     static{
         driver = "com.mysql.cj.jdbc.Driver";
         url = "jdbc:mysql://localhost:3306/?characterEncoding=utf-8&"
-                + "useSSL=false&serverTimezone=UTC&rewriteBatchedStatements=true";
+                + "useSSL=false&serverTimezone=UTC&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true";
         user = "root";
         pwd = "123";
     }
