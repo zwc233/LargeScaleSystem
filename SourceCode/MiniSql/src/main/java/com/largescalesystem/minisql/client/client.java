@@ -3,6 +3,7 @@ package com.largescalesystem.minisql.client;
 import java.io.*;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class client {
@@ -93,6 +94,7 @@ public class client {
     public static void main(String[] args) throws IOException, InterruptedException {
         while(true) {
             String ip = "127.0.0.1";
+//            String ip = "127.0.0.1";
             int port = 2000;
             String sql = null;
             Scanner sc = new Scanner(System.in);
@@ -182,24 +184,58 @@ public class client {
 //            sc.close(); //会出现noline found
 //            System.out.println(region_ip);
 //            System.out.println(region_port);
-            if (raw.length == 1) {
-                client.Communication communication2Region = new client.Communication(region_ip, ip, region_port);
-                communication2Region.start();
-                communication2Region.join();
-                str2 = communication2Region.getResult();
-                System.out.println(str2);
-            } else {
-                client.Communication communication2Region = new client.Communication(region_ip, ip, region_port);
-                communication2Region.start();
-                communication2Region.join();
-                str2 = communication2Region.getResult();
-                System.out.println(str2);
-                client.Communication communication2Region_slave = new client.Communication(region_ip_slave, ip, region_port_slave);
-                communication2Region_slave.start();
-                communication2Region_slave.join();
-                str3 = communication2Region_slave.getResult();
-                System.out.println(str3);
+            String[] temp = sql.split(" ");
+            String sql_slave = null;
+            int index;
+            if(Objects.equals(temp[0], "create")){
+                index = temp[2].indexOf("(");
+                StringBuffer stringBuffer = new StringBuffer(temp[2]);
+                stringBuffer.insert(index,"_slave");
+                temp[2] = stringBuffer.toString();
+                StringBuffer sb = new StringBuffer();
+                for(int i = 0;i < temp.length-1;i++){
+                    sb.append(temp[i]+" ");
+                }
+                sb.append(temp[temp.length - 1]);
+                sql_slave = sb.toString();
+            }else if(Objects.equals(temp[0], "insert")){
+                StringBuffer stringBuffer = new StringBuffer(temp[2]);
+                stringBuffer.append("_slave");
+                temp[2] = stringBuffer.toString();
+                StringBuffer sb = new StringBuffer();
+                for(int i = 0;i < temp.length-1;i++){
+                    sb.append(temp[i]+" ");
+                }
+                sb.append(temp[temp.length - 1]);
+                sql_slave = sb.toString();
+            }else if(Objects.equals(temp[0],"drop")){
+                StringBuffer stringBuffer = new StringBuffer(temp[2]);
+                stringBuffer.append("_slave");
+                temp[2] = stringBuffer.toString();
+                sql_slave = temp[0] + " " + temp[1] + " " + temp[2];
             }
+            System.out.println(raw.length);
+            System.out.println(sql_slave);
+
+            //若无法跟region连接，这段代码会报错connect refused
+//            if (raw.length == 1) {
+//                client.Communication communication2Region = new client.Communication(sql, region_ip, region_port);
+//                communication2Region.start();
+//                communication2Region.join();
+//                str2 = communication2Region.getResult();
+//                System.out.println(str2);
+//            } else {
+//                client.Communication communication2Region = new client.Communication(sql, region_ip, region_port);
+//                communication2Region.start();
+//                communication2Region.join();
+//                str2 = communication2Region.getResult();
+//                System.out.println(str2);
+//                client.Communication communication2Region_slave = new client.Communication(sql_slave, region_ip_slave, region_port_slave);
+//                communication2Region_slave.start();
+//                communication2Region_slave.join();
+//                str3 = communication2Region_slave.getResult();
+//                System.out.println(str3);
+//            }
 
             sql = null;
             break;
